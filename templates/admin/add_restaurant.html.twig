@@ -1,0 +1,94 @@
+{% extends('admin/base.html.twig')%}
+
+{% block body %}
+        <br>
+        <h1 class="margin-bottom-15">Adaugă Restaurant</h1><br>
+        <div class="container">
+            <div class="col-md-12">
+                <form class="form-horizontal dailyaspirants-login-page lg-container" role="form" action="#" method="post">
+                    <div class="form-inner">
+                        <div class="form-group">
+                            <div class="col-md-6">
+                                <label for="input-name" class="control-label">Nume Restaurant</label>
+                                <input type="text" class="form-control" id="input-name" placeholder="">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="input-shortDescription" class="control-label">Descriere scurtă</label>
+                                <input type="text" class="form-control" id="input-shortDescription" placeholder="">
+                            </div>
+                        </div>
+
+
+                        <div class="wrapper-grid" style="margin: 60px">
+                            <div class="container">
+                                <div class="banner-img">
+                                    <label for="restaurant_img">
+                                        <img src="{{ asset('images/no_img.png') }}" alt='cover image' class="cover-img" id="cover_image"  aria-hidden="true">
+                                        <input type="file" class="custom-file-input" id="restaurant_img" onchange="loadFile(event)" style="display:none">
+                                    </label>
+                                </div>
+                                <label for="restaurant_image">
+                                    <img src="{{ asset('images/no_img.png') }}" alt='logo image' class="profile-img"
+                                         id="profile_image">
+
+                                    <input type="file" class="custom-file-input" id="restaurant_image"
+                                           onchange="loadFileRestaurant(event)">
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <button type="button" class="pull-right btn btn-danger" onclick="addRestaurant()">Adaugă</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    <script>
+        let loadFile = function(event) {
+            let output = document.getElementById('cover_image');
+            output.src = URL.createObjectURL(event.target.files[0]);
+            output.onload = function() {
+                URL.revokeObjectURL(output.src) // free memory
+            }
+        };
+
+        let loadFileRestaurant = function (event) {
+            let outputImg = document.getElementById('profile_image');
+            outputImg.src = URL.createObjectURL(event.target.files[0]);
+            outputImg.onload = function() {
+                URL.revokeObjectURL(outputImg.src) // free memory
+            }
+        }
+
+        function addRestaurant()
+        {
+            let fd = new FormData();
+            let files = $('#restaurant_img')[0].files;
+            fd.append('restaurant_img',files[0]);
+            let images = $('#restaurant_image')[0].files;
+            fd.append('restaurant_image',images[0]);
+            fd.append('name',$('#input-name').val());
+            fd.append('shortDescription',$('#input-shortDescription').val());
+            // fd.append('description',$('#input-description').val());
+
+            $.ajax({
+                url: '{{ path('added_restaurant') }}',
+                type: "POST",
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function(response){
+                    console.log('The restaurant was added!');
+                    window.location.href = "/admin/restaurants";
+                },
+                error: function(data) {
+                    console.log('Error at adding Restaurant Details!');
+                }
+            });
+        }
+    </script>
+{% endblock %}

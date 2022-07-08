@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+    <link rel="stylesheet" href="{{ asset('/css/style.css') }}"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
+    <title>{% block title %}go4food{% endblock %}</title>
+    <style>
+        .btn {
+            width: 100px;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .alert{
+            margin-top: 10px;
+       }
+        h1, .alert{
+            font-family: "MyriadPro-Light", "Myriad Pro Light", "Myriad Pro";
+        }
+    </style>
+</head>
+
+<nav class="navbar navbar-expand-lg fixed-top navbar-light navbar-fixed-top bg-light" style="margin-bottom: 20px">
+    <div class="container-fluid">
+        <a href="#" class="navbar-brand">
+            <img src="/images/go4food.png" height="52" alt="">
+        </a>
+        <button type="button" class="navbar-toggler navbar-toggler-right" data-bs-toggle="collapse"
+                data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav nav justify-content-end">
+                <div class="dropdown">
+                    <a type="button" class="nav-item nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ app.user.email }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ asset('/logout') }}" class="nav-item nav-link" style="font-size: 13px">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav><br><br><br>
+{% block body %}
+<div class="background-image">
+    <br><br><br><br>
+
+    <br>
+    <div class="container">
+        <div class="row">
+            <img src="{{ asset('images/delivery.png') }}" style="width: 70px; margin: auto; margin-right: 0 "/>
+            <h1 style="margin: auto; margin-left: 10px";>Comenzi</h1>
+        </div>
+        <div class="main-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col">Id Comanda</th>
+                        <th scope="col">Data</th>
+                        <th scope="col">Adresa de Livrare</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Acțiuni</th>
+                        <th scope="col">Messenger</th>
+                        <th scope="col">Livrata de</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td><a href="#" style="text-decoration: none; color: #64C9CF" onclick="openModal('{{ order.id }}')">#{{ order.id }}</a></td>
+                            <td>{{ order.date }}</td>
+                            <td>{{ order.address }}</td>
+                            <td>{{ order.amount }} Lei</td>
+                            <td>{{ order.user }}</td>
+                            {% if order.status == "Comanda preluata de curier" %}
+                                <td><div class="alert alert-warning" role="alert"><i class="fas fa-shipping-fast"></i>
+                                        {{ order.status }}
+                                    </div></td>
+                            {% elseif order.status == "Comanda Livrata" %}
+                                <td><div class="alert alert-success" role="alert"><i class="fas fa-check-circle"></i>
+                                        {{ order.status }}
+                                    </div></td>
+                            {% else %}
+                                <td><div class="alert alert-danger" role="alert"><i class="fas fa-clock"></i> Comanda este în pregătire</div></td>
+                            {% endif %}
+                            <td>
+
+                            {% if order.status == "Comanda preluata de curier" %}
+                                {% if user == order.deliveryUser %}
+                                    <button id="second-button" type="button" class="btn btn-success" onClick="deliverOrder('{{ order.id }}'); this.disabled=true;">Comandă Livrată</button>
+                                {% endif %}
+                            {% elseif order.status == "Comanda Livrata" %}
+                                Nicio acțiune
+                            {% else %}
+                                 <button id="first-button"  type="button" class="btn btn-warning" style="color: white" onclick="takeOrder('{{ order.id }}'); this.disabled=true;">Preia Comandă</button>
+                            {% endif %}
+                            </td>
+                            <td>
+                                {% if (order.status == "Comanda preluata de curier") and (user == order.deliveryUser) %}
+                                    {#Chat#}
+                                    <div id="chat-circle" class="btn btn-raised chat-circle" onclick="toggleChatCircle('{{ order.id }}', '{{ order.user }}')">
+                                        <div id="chat-overlay"></div>
+                                        <i class="fa-solid fa-message"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if (order.status == "Comanda preluata de curier") or (order.status == "Comanda Livrata") %}
+                                    {{ order.deliveryUser.email }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <div class="chat-box">
+                        <div class="chat-box-header">
+                            <span id="order_id"></span>
+                            <span class="chat-box-toggle"><i class="fa-solid fa-xmark"></i></span>
+                            <br>
+                            <p id="user" style="font-size: 12px; margin-right: 30px"></p>
+                        </div>
+                        <div class="chat-box-body">
+
+                            <div class="chat-box-overlay">
+                            </div>
+                            <div class="chat-logs">
+
+                            </div><!--chat-log -->
+                        </div>
+                        <div class="chat-input">
+                            <form>
+                                <input type="text" id="chat-input" placeholder="Send a message..."/>
+                                <button type="submit" class="chat-submit" id="chat-submit" ><i class="fa-solid fa-paper-plane"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" style="display: none;">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="modal-body"></div>
+
+                    </div><!-- /.modal-content -->
+
+                </div><!-- /.modal-dialog -->
+            </div>
+        </div>
+    </div>
+
+{% endblock%}
+    {% block scripts %}
+    <script>
+        let chatIsOpen = false
+        let lastId = 0
+        let anotherRequestOpen = false
+
+        function deliverOrder(orderId)
+        {
+            let url = '{{ path('deliver_order', {id: -1}) }}'
+             url = url.replace(-1, orderId)
+             $.ajax({
+                url: url,
+                type:"POST",
+                dataType:'json',
+                success: function (response) {
+                    console.log("Comanda Livrata");
+                    window.location.reload();
+                },
+                error: function (data) {
+                    console.log("Eroare la livrarea comenzii de catre curier");
+                }
+             })
+        }
+
+         function takeOrder(orderId)
+         {
+             let url = '{{ path('take_order_for_delivery', {id: -1}) }}'
+             url = url.replace(-1, orderId)
+             $.ajax({
+                url: url,
+                type:"POST",
+                // data: {
+                //     status: "Comanda preluata de curier"
+                // },
+                dataType:'json',
+                success: function (response) {
+                    console.log("Comanda a fost preluata de curier");
+                    window.location.reload();
+                },
+                error: function (data) {
+                    console.log("Eroare la preluarea comenzii de catre curier");
+                }
+             })
+         }
+
+
+        function openModal(orderId)
+        {
+            let url = '{{ path('get-order-products', {id: -1}) }}'
+            url = url.replace(-1, orderId)
+
+            $("#modal-body").html(`<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>`);
+
+            $('#orderModal').modal('show');
+            $('#orderModal').load(url, function() {
+            });
+        }
+
+        let orderId = -1;
+        function toggleChatCircle(id, user) {
+            orderId = id;
+            chatIsOpen = true
+            $('#order_id').text('Order: #' + orderId)
+            $('#user').text('To: ' + user)
+            getMessages();
+            $(".chat-box").toggle('scale');
+        }
+
+        let INDEX = 0;
+        $("#chat-submit").click(function(e) {
+            e.preventDefault();
+            let msg = $("#chat-input").val();
+            if(msg.trim() == ''){
+                return false;
+            }
+            addMessageChat();
+            generate_message(msg, 'self');
+        })
+
+        function generate_message(msg, type) {
+            INDEX++;
+            let str="";
+            str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg "+type+"\">";
+            str += "          <div class=\"cm-msg-text\">";
+            str += msg;
+            str += "          <\/div>";
+            str += "        <\/div>";
+            $(".chat-logs").append(str);
+            $("#cm-msg-"+INDEX).hide().fadeIn(300);
+            if(type == 'self'){
+                $("#chat-input").val('');
+            }
+            $(".chat-logs").stop().animate({ scrollTop: $(".chat-logs")[0].scrollHeight}, 1000);
+        }
+
+        $(".chat-box-toggle").click(function(event) {
+            chatIsOpen = false
+            $(".chat-box").toggle('scale');
+        })
+
+        function getNewMessages() {
+            if (anotherRequestOpen) {
+                return
+            }
+
+            anotherRequestOpen = true
+            if (!chatIsOpen) {
+                return
+            }
+
+            let url = '{{ path('get_new_messages', {id: -1}) }}'
+            url = url.replace('-1', orderId)
+
+            $.ajax({
+                url: url,
+                type: "GET",
+                dataType: 'json',
+                data: {
+                    lastId: lastId
+                },
+                success: function(response){
+                    response.forEach(function (message) {
+                        generate_message(message.message, 'user')
+                        lastId = message.id
+                    });
+
+                    anotherRequestOpen = false
+                },
+                error: function(data) {
+                    console.log('Error at adding Message!')
+                    anotherRequestOpen = false
+                }
+            });
+
+        }
+
+        function getMessages() {
+            INDEX = 0;
+            $(".chat-logs").html('');
+            let url = '{{ path('get_messages', {id: -1}) }}'
+            url = url.replace('-1', orderId)
+
+            anotherRequestOpen = true
+            $.ajax({
+                url: url,
+                type: "GET",
+                dataType: 'json',
+                success: function(response){
+                    response.forEach(function (message) {
+                        if (message.is_current_user) {
+                            generate_message(message.message, 'self')
+                        } else {
+                            generate_message(message.message, 'user')
+                            lastId = message.id
+                        }
+                    });
+
+                    anotherRequestOpen = false
+                    setInterval(getNewMessages, 2000);
+                },
+                error: function(data) {
+                    console.log('Error at adding Message!');
+                }
+            });
+        }
+
+        function addMessageChat()
+        {
+            let url = '{{ path('chat_message', {id: -1}) }}'
+            url = url.replace('-1', orderId)
+            let chatInput = $("#chat-input").val();
+            if (chatInput != "") {
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        message: chatInput,
+                    },
+                    dataType: 'json',
+                    success: function(response){
+
+                    },
+                    error: function(data) {
+                        console.log('Error at adding Message!');
+                    }
+                });
+            }
+        }
+    </script>
+{% endblock %}

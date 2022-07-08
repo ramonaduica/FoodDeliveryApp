@@ -1,0 +1,27 @@
+{% extends('base.html.twig') %}
+
+{% block body %}
+
+    <section class="about" id="about">
+
+        <div class="image">
+            <img src="images/about-img.png" alt="">
+        </div>
+
+        <div class="content">
+            <h3 class="title">Bine ați venit la go4food!</h3>
+            <p>
+                Împarte masa cu oamenii dragi! <br>
+                Go4Food este o platformă de livrare pentru mâncare care face posibilă comandarea acesteia de la restaurantele dvs. preferate la fel de ușor ca și solicitarea unei călătorii.
+                Aplicația Go4Food vă conectează cu o gamă de restaurante și mâncăruri locale, astfel încât să puteți comanda din meniurile restaurantelor favorite oricând doriți.
+            </p>
+            <a href="{{ asset('/restaurants') }}" class="btn">Comandă acum</a>
+        </div>
+
+    </section>
+
+
+
+
+
+{% endblock %}

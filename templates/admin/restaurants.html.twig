@@ -1,0 +1,124 @@
+{% extends('admin/base.html.twig') %}
+
+{% block body %}
+    <h1 id="text-restaurants">Restaurante</h1><br>
+
+    <div class="wrapper-grid">
+    {% for restaurant in restaurants %}
+        <div class="container">
+            <div class='banner-img'>
+                <a href="#">
+                    <img src='{{ asset(restaurant.getRestaurantImagePath()) }}' alt='cover image' class="cover-img">
+                </a>
+                <a data-toggle="modal" data-target=".bs-example-modal-lg" onclick="openModal('{{ restaurant.id }}', '{{ restaurant.name }}', '{{ restaurant.shortDescription }}', '{{ restaurant.restaurantImagePath }}', '{{ restaurant.restaurantLogoPath }}')"><span id="edit-icon"><i
+                                class="fa fa-edit"></i></span> </a>
+                <a href="{{ path('delete-restaurant', {id:restaurant.id}) }}" style=""><span id="delete-icon"><i
+                                class="fa fa-trash"></i></span> </a>
+            </div>
+            <a href="#"><img src='{{ asset(restaurant.getRestaurantLogoPath()) }}' alt='logo image' class="profile-img"></a>
+            <h1 class="name">{{ restaurant.name }}</h1>
+{#            <p class="description">{{ restaurant.shortDescription }}</p>#}
+            <button class='btn btn-info'><a href="{{ path('show_menu', {id:restaurant.id}) }}">Meniu</a></button>
+        </div>
+    {% endfor %}
+    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+         style="display: none;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                        <div class="container">
+                            <div class='banner-img'>
+                                <a href="#">
+                                    <label for="restaurant_img">
+                                        <img src="{{ asset('images/no_img.png') }}" alt='cover image' class="cover-img"
+                                             id="cover_image" aria-hidden="true">
+                                        <input type="file" class="custom-file-input" id="restaurant_img"
+                                               onchange="loadFile(event)" style="display:none">
+                                    </label>
+                                </a>
+                            </div>
+                            <a href="#">
+                                <label for="restaurant_image">
+                                    <img src="{{ asset('images/no_img.png') }}" alt='logo image' class="profile-img"
+                                         id="profile_image">
+
+                                    <input type="file" class="custom-file-input" id="restaurant_image"
+                                           onchange="loadFileRestaurant(event)">
+                                </label>
+                            </a>
+                            <div class="form-group">
+                                <input id="input-name" type="text" class="form-control"/>
+                                <input id="input-shortDescription" type="text" class="form-control"/>
+                            </div>
+                            <button class='btn btn-info' onclick="editRestaurant()">Editează</button>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let idRestaurant = -1
+        // Display Images
+        let loadFile = function (event) {
+            let output = document.getElementById('cover_image');
+            output.src = URL.createObjectURL(event.target.files[0]);
+            output.onload = function () {
+                URL.revokeObjectURL(output.src) // free memory
+            }
+        };
+
+        let loadFileRestaurant = function (event) {
+            let outputImg = document.getElementById('profile_image');
+            outputImg.src = URL.createObjectURL(event.target.files[0]);
+            outputImg.onload = function () {
+                URL.revokeObjectURL(outputImg.src) // free memory
+            }
+        }
+
+        function openModal(id, name, description, cover, profile) {
+            idRestaurant = id;
+            $('#input-name').val(name)
+            $('#input-shortDescription').val(description)
+            $('#cover_image').attr("src",'/'+ cover);
+            $('#profile_image').attr("src",'/'+ profile);
+        }
+
+        function editRestaurant() {
+            let fd = new FormData();
+            let files = $('#restaurant_img')[0].files;
+            if (files.length) {
+                fd.append('restaurant_image', files[0]);
+            }
+            let images = $('#restaurant_image')[0].files;
+            if (images.length) {
+                fd.append('restaurant_img', images[0]);
+            }
+            fd.append('name', $('#input-name').val());
+            fd.append('shortDescription', $('#input-shortDescription').val());
+            fd.append('description', $('#input-description').val());
+
+            let url = '{{ path('edit-restaurant', {id: -1}) }}'
+            url = url.replace(-1, idRestaurant)
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log('The restaurant was updated!');
+                    window.location.href = "/admin/restaurants";
+                },
+                error: function (data) {
+                    console.log('Error at updating Restaurant Details!');
+                }
+            });
+        }
+    </script>
+{% endblock %}

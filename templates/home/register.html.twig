@@ -1,0 +1,84 @@
+{% extends('base.html.twig') %}
+
+{% block body %}
+    <style>
+        .register header{
+            padding: 0;
+            margin-top: 0;
+            font-size: 30px;
+        }
+        .register .field input {
+            padding: 10px;
+        }
+        .register .field {
+            height: 40px;
+        }
+        .register .links .facebook, .google {
+            height: 35px;
+        }
+    </style>
+
+    <div class="bg-img">
+        <div class="register">
+            <br><br>
+            <header>Register</header>
+            <form action="{{ path('register') }}" method="post">
+                <div class="field">
+                    <span class="fa fa-user"></span>
+                    <input type="text" required placeholder="firstName" name="firstName">
+                </div>
+                <div class="field space">
+                    <span class="fa fa-user"></span>
+                    <input type="text" required placeholder="lastName" name="lastName">
+                </div>
+                <div class="field space">
+                    <span class="fa fa-user"></span>
+                    <input type="text" required placeholder="Email" name="username" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" title="Invalid email address">
+                </div>
+                <div class="field space">
+                    <span class="fa fa-lock"></span>
+                    <input type="password" class="pass-key" required placeholder="Password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" onCopy="return false" onDrag="return false" onDrop="return false" onPaste="return false">
+
+                    <span class="show">SHOW</span>
+                </div>
+                <div class="field space">
+                    <span class="fa fa-lock"></span>
+                    <input type="password" class="pass-key" required placeholder="Re-Type Password" onCopy="return false" onDrag="return false" onDrop="return false" onPaste="return false">
+                </div>
+                <div class="pass">Please confirm password</a>
+                </div>
+                <div class="field">
+                    <input type="submit" value="REGISTER">
+                </div>
+            </form>
+            <div class="login">
+                Or login with
+            </div>
+            <div class="links">
+                <div class="facebook">
+                    <i class="fab fa-facebook-f"><span>Facebook</span></i>
+                </div>
+                <div class="google">
+                    <i class="fab fa-google"><span>Google</span></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const pass_field = document.querySelector('.pass-key');
+        const showBtn = document.querySelector('.show');
+        showBtn.addEventListener('click', function(){
+            if(pass_field.type === "password"){
+                pass_field.type = "text";
+                showBtn.textContent = "HIDE";
+                showBtn.style.color = "#3498db";
+            }else{
+                pass_field.type = "password";
+                showBtn.textContent = "SHOW";
+                showBtn.style.color = "#222";
+            }
+        });
+    </script>
+
+
+{% endblock %}

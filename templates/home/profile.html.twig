@@ -1,0 +1,438 @@
+{% extends('base.html.twig') %}
+{% block body %}
+    <div class="container">
+        <div class="main-body">
+            <br><br><br><br><br><br>
+            <div class="row gutters-sm">
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body" style="padding: 0rem;">
+                            <div class="d-flex flex-column align-items-center text-center">
+                                <img src="{{ asset(user.getProfileImagePath()) }}" alt="imagine profil" class="rounded-circle" width="170" height="170">
+                                <div class="mt-3">
+                                    <h4>{{ user.username }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-body" style="padding: 1.3rem">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">First Name</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ user.firstName }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Last Name</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ user.lastName }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Email</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ user.email }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Phone</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ user.phoneNumber }}
+                                </div>
+                            </div>
+                            <hr>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <a class="btn btn-info " target="__blank" href="{{ path('edit-profile') }}">Edit</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="float-right">
+            <button type="button" class="btn btn-info" style="margin-right: 30px" onclick="openModalReview()">Adauga Review</button>
+        </div>
+        <br>
+        <br>
+        <div class="command-text">Comenzile mele</div>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col">Id Comanda</th>
+                    <th scope="col">Data</th>
+                    <th scope="col">Adresa de Livrare</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Messenger</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td><a href="#" style="text-decoration: none; color: #64C9CF" onclick="openModal('{{ order.id }}')">#{{ order.id }}</a></td>
+                        <td>{{ order.date }}</td>
+                        <td>{{ order.address }}</td>
+                        <td>{{ order.amount }} Lei</td>
+                        {% if order.status == "Comanda preluata de curier" %}
+                            <td><div class="alert alert-warning" role="alert"><i class="fas fa-shipping-fast"></i>
+                                    {{ order.status }}
+                                </div>
+                            </td>
+
+                        {% elseif order.status == "Comanda Livrata" %}
+                            <td><div class="alert alert-success" role="alert"><i class="fas fa-check-circle"></i>
+                                    {{ order.status }}
+                                </div></td>
+                        {% else %}
+                            <td><div class="alert alert-danger" role="alert"><i class="fas fa-clock"></i> Comanda este in pregatire</div></td>
+                        {% endif %}
+                        <td>
+                            {% if order.status == "Comanda preluata de curier" %}
+                                {#Chat#}
+                                <div id="chat-circle" class="btn btn-raised chat-circle" onclick="toggleChatCircle('{{ order.id }}', '{{ order.deliveryUser }}')">
+                                    <div id="chat-overlay"></div>
+                                    <i class="fa-solid fa-message"></i>
+
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                <div class="chat-box">
+                    <div class="chat-box-header">
+                        <span id="order_id"></span>
+                        <span class="chat-box-toggle"><i class="fa-solid fa-xmark"></i></span>
+                        <br>
+                        <p id="user" style="font-size: 12px; margin-right: 30px"></p>
+                    </div>
+                    <div class="chat-box-body">
+
+                        <div class="chat-box-overlay">
+                        </div>
+                        <div class="chat-logs">
+
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <form>
+                            <input type="text" id="chat-input" placeholder="Send a message..."/>
+                            <button type="submit" class="chat-submit" id="chat-submit" ><i class="fa-solid fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+                </div>
+                {#EndChat#}
+                </tbody>
+            </table>
+        </div>
+        <div class="modal" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" style="display: none;">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body" id="modal-body">
+
+                        <div class="container">
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1">Alege Restaurant</label>
+                            <select name="choose_restaurant" class="form-control form-control-lg" id="exampleFormControlSelect1">
+                                {% for val in restaurants %}
+                                    <option value="{{ val.id }}">{{ val.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                            <div class="rating" id="rating">
+                                <label>☆
+                                    <input type="radio" name="rating" value="5" />
+                                </label>
+                                <label>☆
+                                    <input type="radio" name="rating" value="4" />
+                                </label>
+                                <label>☆
+                                    <input type="radio" name="rating" value="3" />
+                                </label>
+                                <label>☆
+                                    <input type="radio" name="rating" value="2" />
+                                </label>
+                                <label>☆
+                                    <input type="radio" name="rating" value="1" />
+                                </label>
+                            </div>
+                        <br><br><br><br>
+                        <button class="btn btn-info" type="submit" onclick="addReview()">Adauga Review</button>
+                        <br><br><br>
+                    </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+        <div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" style="display: none;">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="modal-body"></div>
+
+                    </div>
+
+                </div>
+            </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let orderId = -1;
+    let chatIsOpen = false
+    let anotherRequestOpen = false
+    let lastId = 0
+
+    function toggleChatCircle(id, user) {
+        orderId = id;
+        $('#order_id').text('Comanda: #' + orderId)
+        $('#user').text('Catre: ' + user)
+        chatIsOpen = true
+        getMessages();
+        $(".chat-box").toggle('scale');
+    }
+
+    let INDEX = 0;
+    $("#chat-submit").click(function(e) {
+        e.preventDefault();
+        let msg = $("#chat-input").val();
+        if(msg.trim() == ''){
+            return false;
+        }
+        addMessageChat();
+        generate_message(msg, 'self');
+    })
+
+    function generate_message(msg, type) {
+        INDEX++;
+        let str="";
+        str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg "+type+"\">";
+        str += "          <div class=\"cm-msg-text\">";
+        str += msg;
+        str += "          <\/div>";
+        str += "        <\/div>";
+        $(".chat-logs").append(str);
+        $("#cm-msg-"+INDEX).hide().fadeIn(300);
+        if(type == 'self'){
+            $("#chat-input").val('');
+        }
+        $(".chat-logs").stop().animate({ scrollTop: $(".chat-logs")[0].scrollHeight}, 1000);
+    }
+
+    function generate_button_message(msg, buttons){
+        /* Buttons should be object array
+          [
+            {
+              name: 'Existing User',
+              value: 'existing'
+            },
+            {
+              name: 'New User',
+              value: 'new'
+            }
+          ]
+        */
+        INDEX++;
+        let btn_obj = buttons.map(function(button) {
+            return  "              <li class=\"button\"><a href=\"javascript:;\" class=\"btn btn-primary chat-btn\" chat-value=\""+button.value+"\">"+button.name+"<\/a><\/li>";
+        }).join('');
+        let str="";
+        str += "<div id='cm-msg-"+INDEX+"' class=\"chat-msg user\">";
+        str += "          <div class=\"cm-msg-text\">";
+        str += msg;
+        str += "          <\/div>";
+        str += "          <div class=\"cm-msg-button\">";
+        str += "            <ul>";
+        str += btn_obj;
+        str += "            <\/ul>";
+        str += "          <\/div>";
+        str += "        <\/div>";
+        $(".chat-logs").append(str);
+        $("#cm-msg-"+INDEX).hide().fadeIn(300);
+        $(".chat-logs").stop().animate({ scrollTop: $(".chat-logs")[0].scrollHeight}, 1000);
+        $("#chat-input").attr("disabled", true);
+    }
+
+    $(document).delegate(".chat-btn", "click", function() {
+        let value = $(this).attr("chat-value");
+        let name = $(this).html();
+        $("#chat-input").attr("disabled", false);
+        generate_message(name, 'self');
+    })
+
+
+    $(".chat-box-toggle").click(function(event) {
+        $(".chat-box").toggle('scale');
+        chatIsOpen = false
+    })
+
+    function getNewMessages() {
+        if (!chatIsOpen) {
+            return
+        }
+        if (anotherRequestOpen) {
+            return
+        }
+        anotherRequestOpen = true
+        let url = '{{ path('get_new_messages', {id: -1}) }}'
+        url = url.replace('-1', orderId)
+
+        $.ajax({
+            url: url,
+            type: "GET",
+            dataType: 'json',
+            data: {
+                lastId: lastId
+            },
+            success: function(response){
+                console.log(response)
+                response.forEach(function (message) {
+                    generate_message(message.message, 'user')
+                    lastId = message.id
+                });
+                anotherRequestOpen = false
+            },
+            error: function(data) {
+                console.log('Error at adding Message!');
+                anotherRequestOpen = false
+            }
+        });
+    }
+
+    function getMessages() {
+        INDEX = 0;
+        $(".chat-logs").html('');
+        let url = '{{ path('get_messages', {id: -1}) }}'
+        url = url.replace('-1', orderId)
+        anotherRequestOpen = true
+        $.ajax({
+            url: url,
+            type: "GET",
+            dataType: 'json',
+            success: function(response){
+                response.forEach(function (message) {
+                    if (message.is_current_user) {
+                        generate_message(message.message, 'self')
+                    } else {
+                        generate_message(message.message, 'user')
+                        lastId = message.id
+                    }
+                });
+
+                anotherRequestOpen = false
+                setInterval(getNewMessages, 2000);
+            },
+            error: function(data) {
+                console.log('Error at adding Message!');
+            }
+        });
+    }
+
+    function addMessageChat()
+    {
+        let url = '{{ path('chat_message', {id: -1}) }}'
+        url = url.replace('-1', orderId)
+        let chatInput = $("#chat-input").val();
+        if (chatInput != "") {
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {
+                    message: chatInput,
+                },
+                dataType: 'json',
+                success: function(response){
+
+                },
+                error: function(data) {
+                    console.log('Error at adding Message!');
+                }
+            });
+        }
+    }
+
+    function addReview()
+    {
+        $.ajax({
+            url: '{{ path('add_review') }}',
+            type: "POST",
+            data: {
+                rating: $('input[name=rating]:checked', '#rating').val(),
+                restaurant: $('#exampleFormControlSelect1').val()
+            },
+            dataType: 'json',
+            success: function(response){
+                console.log('The review was added!');
+                window.location.href = "/profile";
+            },
+            error: function(data) {
+                console.log('Error at adding Review!');
+            }
+        });
+    }
+
+    // Rating
+    $('.rating span').on('click',function(){
+        $('#rate_holder').val(4-$(this).index()+1);
+        console.log($('#rate_holder').val());
+    });
+    $(document).ready(function() {
+        $('label').click(function() {
+            $('label').removeClass('active');
+            $(this).addClass('active');
+        });
+    });
+
+
+
+    function openModalReview()
+    {
+        $('#reviewModal').modal('show');
+
+    }
+
+    function openModal(orderId)
+    {
+        let url = '{{ path('get-order-products', {id: -1}) }}'
+        url = url.replace(-1, orderId)
+
+        $("#modal-body").html(`<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>`);
+
+        $('#orderModal').modal('show');
+        $('#orderModal').load(url, function() {
+        });
+    }
+</script>
+{% endblock %}

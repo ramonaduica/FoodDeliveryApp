@@ -1,0 +1,80 @@
+{% extends('admin/base.html.twig') %}
+{% block body %}
+    <div class="background-image">
+    <br><br><br><br>
+    <h1>Comenzi</h1>
+    <br>
+    <div class="container">
+        <div class="main-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col">Id Comanda</th>
+                    <th scope="col">Data</th>
+                    <th scope="col">Adresa de Livrare</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Livrata de</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td><a href="#" style="text-decoration: none; color: #64C9CF" onclick="openModal('{{ order.id }}')">#{{ order.id }}</a></td>
+                        <td>{{ order.date }}</td>
+                        <td>{{ order.address }}</td>
+                        <td>{{ order.amount }} Lei</td>
+                        <td>{{ order.user }}</td>
+                        {% if order.status == "Comanda preluata de curier" %}
+                            <td><div class="alert alert-warning" role="alert"><i class="fas fa-shipping-fast"></i>
+                                    {{ order.status }}
+                                </div></td>
+                        {% elseif order.status == "Comanda Livrata" %}
+                            <td><div class="alert alert-success" role="alert"><i class="fas fa-check-circle"></i>
+                                    {{ order.status }}
+                                </div></td>
+                        {% else %}
+                            <td><div class="alert alert-danger" role="alert"><i class="fas fa-clock"></i> Comanda este in pregatire</div></td>
+                        {% endif %}
+                        <td>{{ order.deliveryUser }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="modal" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" style="display: none;">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="modal-body"></div>
+
+                </div><!-- /.modal-content -->
+
+            </div><!-- /.modal-dialog -->
+        </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block scripts %}
+    <script>
+        function openModal(orderId)
+        {
+            let url = '{{ path('get-order-products', {id: -1}) }}'
+            url = url.replace(-1, orderId)
+
+            $("#modal-body").html(`<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>`);
+
+            $('#orderModal').modal('show');
+            $('#orderModal').load(url, function() {
+            });
+        }
+    </script>
+{% endblock %}

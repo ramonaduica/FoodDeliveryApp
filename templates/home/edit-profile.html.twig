@@ -1,0 +1,171 @@
+{% extends('base.html.twig') %}
+{% block body %}
+    <form method="POST" enctype="multipart/form-data">
+        <div class="container">
+        <div class="main-body">
+            <br><br><br><br><br><br>
+            <div class="row gutters-sm">
+                <div class="col-md-4 mb-3">
+                    <div class="card-profile">
+                        <div class="card-body" style="padding: 1.9rem;">
+                            <div class="d-flex flex-column align-items-center text-center">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="user_img" onchange="loadFile(event)">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div><br>
+                                    <img id="display-image" src="/images/users/{{ user.profileImage }}">
+                                <div class="mt-3">
+                                    <input id="input-username" type="text" placeholder="username" value="{{ user.username }}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card-profile mb-3">
+                        <div class="card-body" style="padding: 32px">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">First Name</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" id="input-firstName" value="{{ user.firstName }}"/>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Last Name</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" id="input-lastName" value="{{ user.lastName }}"/>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Email</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" id="input-email" value="{{ user.email }}"/>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Phone</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" id="input-phoneNumber" value="{{ user.phoneNumber }}"/>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <a class="btn btn-info " onclick="updateUser()">Editează</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    function validateEmail()
+    {
+        let email = document.getElementById('input-email');
+        let filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        if (!filter.test(email.value)) {
+            document.getElementById('input-email').value = "";
+            alert('Please provide a valid email address');
+            email.focus;
+            return false;
+        }
+        else {
+            alert("valid email");
+        }
+
+        return true;
+    }
+
+    function validatePhoneNumber()
+    {
+        let phone = document.getElementById('input-phoneNumber');
+        let filterPhone = /^(\+4|)?(07[0-8]{1}[0-9]{1}|02[0-9]{2}|03[0-9]{2}){1}?(\s|\.|\-)?([0-9]{3}(\s|\.|\-|)){2}$/;
+
+        if (!filterPhone.test(phone.value)) {
+            document.getElementById('input-phoneNumber').value = "";
+            alert('Please provide a valid phone number');
+            phone.focus;
+            return false;
+        } else {
+            alert("valid phone");
+        }
+
+        return true;
+    }
+
+
+
+    let loadFile = function(event) {
+        let output = document.getElementById('display-image');
+        output.src = URL.createObjectURL(event.target.files[0]);
+        output.onload = function() {
+            URL.revokeObjectURL(output.src) // free memory
+        }
+        uploadImg();
+    };
+
+    function uploadImg() {
+        let fd = new FormData();
+        let files = $('#user_img')[0].files;
+
+        // Check file selected or not
+        if(files.length > 0 ){
+            fd.append('file',files[0]);
+
+            $.ajax({
+                url: '{{ path('upload_img') }}',
+                type: 'post',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function(response){
+                    console.log('The image was uploaded!');
+                },
+            });
+        } else {
+            alert("Please select a file.");
+        }
+
+    }
+
+    function updateUser() {
+        if (!validateEmail() || !validatePhoneNumber()) {
+            return;
+        }
+
+        $.ajax({
+            url: '{{ path('update_user') }}',
+            type: "POST",
+            data: JSON.stringify({
+                username: $('#input-username').val(),
+                firstName: $('#input-firstName').val(),
+                lastName: $('#input-lastName').val(),
+                phone: $('#input-phoneNumber').val(),
+                email: $('#input-email').val(),
+                address: $('#input-address').val()
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(response){
+                console.log('The user was updated!');
+                window.location.href = "/profile";
+            },
+        });
+    }
+</script>
+{% endblock %}

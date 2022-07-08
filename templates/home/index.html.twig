@@ -1,0 +1,61 @@
+{% extends('base.html.twig') %}
+
+{% block body %}
+
+    <section class="home" id="home">
+
+        <div class="swiper home-slider">
+
+            <div class="swiper-wrapper">
+
+                <div class="swiper-slide slide" style="background: url('images/img_1.png') no-repeat;">
+                    <div class="content">
+                        <span>Mâncare Delicioasă</span>
+                        <h3>Încearcă ceva nou</h3>
+                        <a href="{{ asset('/restaurants') }}" class="btn">Restaurante</a>
+                    </div>
+                </div>
+
+                <div class="swiper-slide slide" style="background: url('images/img_2.jpg') no-repeat;">
+                    <div class="content">
+                        <span>Mâncare Delicioasă</span>
+                        <h3>Mâncare = fericire</h3>
+                        <a href="{{ asset('/restaurants') }}" class="btn">Restaurante</a>
+                    </div>
+                </div>
+
+                <div class="swiper-slide slide" style="background: url('images/img_3.jpg') no-repeat;">
+                    <div class="content">
+                        <span>Mâncare Delicioasă</span>
+                        <h3>Comandă online</h3>
+                        <a href="{{ asset('/restaurants') }}" class="btn">Restaurante</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="swiper-button-next" style="color: azure"></div>
+            <div class="swiper-button-prev" style="color: azure"></div>
+
+        </div>
+
+    </section>
+
+<script>
+
+    var swiper = new Swiper(".home-slider", {
+        grabCursor:true,
+        loop:true,
+        centeredSlides:true,
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+    });
+
+
+</script>
+
+    <br><br><br><br>
+
+{% endblock %}

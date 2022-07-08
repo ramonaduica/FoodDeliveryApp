@@ -1,0 +1,132 @@
+{% extends('base.html.twig') %}
+
+{% block body %}
+    <div class="card-order" xmlns="http://www.w3.org/1999/html">
+        <div class="row row-order-details">
+            <div class="col-md-8 cart-order">
+                <div class="title-order">
+                    <div class="row-order">
+                        <div class="col"><h4><b>Coș de cumpărături</b></h4></div>
+                    </div>
+                </div>
+                {% for restaurantProduct in restaurant_products %}
+                    <h2>{{ restaurantProduct.restaurant_name }}</h2>
+                    {% for index,product in restaurantProduct.menus %}
+                        <div class="row border-bottom">
+                            <div class="row main-order align-items-center">
+                                <div class="col-2">
+                                    <img class="img-fluid-order"
+                                         src="/images/food/{{ product.menuImage }}">
+                                </div>
+                                <div class="col">
+                                    <div class="row-order text-muted">{{ product.menu }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="cart-item">
+                                        <div class="item-actions">
+                                            <div class="quantity"> {{ product.quantity }}</div>
+                                            <div class="item-price price"> {{ product.price }}</div>
+                                            <div class="remove-item" onclick="deleteProduct({{ index }})">
+                                                <a><i class="fa-solid fa-trash-can"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <div class="back-to-shop">
+                    <a href="{{ path('show_restaurants') }}"><i class="fa-solid fa-angle-left"></i> Înapoi la cumpăraturi
+                    </a><span class="text-muted"></span>
+                </div>
+            </div>
+            <div class="col-md-4 summary">
+                <div>
+                    <h5><b>SUMAR</b></h5>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col text-left">Cost produse</div>
+                    <div class="col text-right"> {{ total_price }} Lei</div>
+                </div>
+                <div class="row">
+                    <div class="col text-left">Cost Transport</div>
+                    <div class="col text-right"> {{ transport_price }} Lei</div>
+                </div>
+                <form>
+                    <h3>Adresa de livrare</h3>
+                    <div class="form-group">
+                        <textarea class="form-control" id="input-address" rows="2" required></textarea>
+                    </div>
+                    <br>
+                    <h3>Numar de telefon</h3>
+                    <div class="form-group">
+                        <input type="text" id="input-phoneNumber" class="form-control" required>
+                    </div>
+                </form>
+                <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
+                    <div class="col">PREȚ TOTAL</div>
+                    <div class="col text-right"> {{ total_price_with_transport }}</div>
+                </div>
+                <button class="btn" onclick="saveOrder()">COMANDĂ</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function validatePhoneNumber()
+        {
+            let phone = document.getElementById('input-phoneNumber');
+            let filterPhone = /^(\+4|)?(07[0-8]{1}[0-9]{1}|02[0-9]{2}|03[0-9]{2}){1}?(\s|\.|\-)?([0-9]{3}(\s|\.|\-|)){2}$/;
+
+            if (!filterPhone.test(phone.value)) {
+                document.getElementById('input-phoneNumber').value = "";
+                alert('Please provide a valid phone number');
+                phone.focus;
+                return false;
+            } else {
+                alert("valid phone");
+            }
+
+            return true;
+        }
+
+        function deleteProduct(menuId) {
+            let url = '{{ path('delete_menu_from_cart', {id: -1}) }}'
+            url = url.replace('-1', menuId)
+
+            $.ajax({
+                url: url,
+                type: "DELETE",
+                dataType: 'json',
+                success: function(response){
+                    window.location.reload()
+                }
+            })
+        }
+
+        function saveOrder() {
+            if (!validatePhoneNumber()) {
+                return;
+            }
+            $.ajax({
+                url: '{{ path('save_order') }}',
+                type: "POST",
+                data: JSON.stringify({
+                    address: $('#input-address').val(),
+                    phoneNumber: $('#input-phoneNumber').val(),
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(response){
+                    window.location.reload()
+                }
+            })
+        }
+
+    </script>
+{% endblock %}

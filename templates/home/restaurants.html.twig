@@ -1,0 +1,23 @@
+{% extends('base.html.twig') %}
+
+{% block body %}
+    <h1 id="text-restaurants">Restaurante</h1>
+    <div class="wrapper-grid">
+        {% for restaurant in restaurants %}
+            <div class="container">
+                <div class='banner-img'>
+                    <a href="#"><img src='{{ asset(restaurant.getRestaurantImagePath()) }}' alt='cover image' class="cover-img"></a>
+                </div>
+                <img src='{{ asset(restaurant.getRestaurantLogoPath()) }}' alt='restaurant image' class="profile-img">
+                <h1 class="name">{{ restaurant.name }}</h1>
+                {% if reviews[restaurant.id] is defined %}
+                    <p class="description-average"><span class="avg-star"><i class="fas fa-star"></i></span> {{ (reviews[restaurant.id].average)|number_format(2) }} </p>
+                {% endif %}
+    {#            <p class="description">{{ restaurant.shortDescription }}</p>#}
+                <button class='btn'><a href="{{ path('restaurant_category', {id:restaurant.id}) }}">Meniu</a></button>
+            </div>
+        {% endfor %}
+        </div>
+            <br><br><br><br>
+
+{% endblock %}

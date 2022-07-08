@@ -1,0 +1,99 @@
+{% extends('base.html.twig') %}
+
+{% block body %}
+    <div id="restaurant-grid" data-aos="fade-up">
+        <div class="container">
+            <img src="{{ asset(restaurant.getRestaurantImagePath()) }}" class="img-fluid cover-pic"
+                 alt="Responsive image">
+            <img src="{{ asset(restaurant.getRestaurantLogoPath()) }}" alt="Logo" class="img-fluid logo-pic">
+
+
+                <button type="button" class="button-add" onclick="window.location.href='{{ asset('/restaurants') }}'">
+                   <span class="button__icon">
+                         <i class='fas fa-angle-left'></i>
+                    </span>
+                    <span class="button__text">Restaurante</span>
+                </button>
+
+            </div>
+
+            <h3 class="restaurant-grid-title">
+                {{ restaurant.name }}
+            </h3>
+
+
+            <br>
+
+            <br><br><br>
+            {% for key, menuCategory in menus %}
+                <div class="widget-header">
+                    <div class="widget-header-container">
+                        <h3 class="widget-title">{{ key }}</h3>
+                    </div>
+                </div>
+
+                <div class="restaurant-grid-wrapper">
+                    {% for menu in menuCategory %}
+                        <a onclick="addMenuToCartModal('{{ restaurant.id }}', '{{ menu.id }}', '{{ menu.itemImage }}')">
+                            <div class="restaurant-grid-item">
+                                <div class="restaurant-grid-item-img">
+                                    <img src="/images/food/{{ menu.itemImage }}" id="menu_img">
+                                </div>
+                                <div class="restaurant-grid-item-info" id="info-dish-menu">
+                                    <h3 class="restaurant-grid-item-title">
+                                        {{ menu.name }}
+                                    </h3>
+                                    <p>{{ menu.price }} Lei</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+                <br><br>
+            {% endfor %}
+
+            <div class="modal fade" id="addToCartModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+                 style="display: none;">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container">
+                                <div class="float-center">
+                                    <img id="menu_image" class="food-item-img"/>
+                                    {# +- button #}
+                                    <div class="qty">
+                                        <span class="minus bg-dark" onclick="decrement()">-</span>
+                                        <input type="number" id="quantity" class="count" name="qty" value="1">
+                                        <span class="plus bg-dark" onclick="increment()">+</span>
+                                    </div>
+                                    <br>
+                                    {% if is_granted('ROLE_USER') == false %}
+                                        <h3 style="text-align: center">Pentru a adauga produsele in cos <i class="fa-solid fa-arrow-right-long"></i> <a href="{{ asset('\login') }}" style="text-decoration: none; color: black; font-weight:600">Login</a></h3>
+                                        <br><br>
+                                    {% endif %}
+                                    <button class="addtocart" onclick="addMenuToCart()">
+                                        <div class="pretext">
+                                            <i class="fas fa-cart-plus"></i> Add To Cart
+                                        </div>
+
+                                        <div class="pretext done">
+                                            <div class="posttext"><i class="fas fa-check"></i> ADDED</div>
+                                        </div>
+
+                                    </button>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
